@@ -2,16 +2,16 @@
 
 Public Class WatchSession
     Private ReadOnly Property WatchModels As New List(Of WatchModel)
-    Private watchers As New List(Of FileSystemWatcher)
+    Private ReadOnly _watchers As New List(Of FileSystemWatcher)
 
     Public Sub AddTarget(path As String, subdirs As Boolean, filter As String,
                          notifyFilter As NotifyFilters, watch As WatcherChangeTypes)
         WatchModels.Add(New WatchModel With {
-                        .Path = path,
-                        .IncludeSubdirectories = subdirs,
-                        .Filter = filter,
-                        .NotifyFilter = notifyFilter,
-                        .Watch = watch})
+                           .Path = path,
+                           .IncludeSubdirectories = subdirs,
+                           .Filter = filter,
+                           .NotifyFilter = notifyFilter,
+                           .Watch = watch})
     End Sub
 
     Public Sub Start()
@@ -32,28 +32,31 @@ Public Class WatchSession
 
             ' Create an fs watcher to monitor the given folder in watch model. 
             Dim watcher = New FileSystemWatcher With {
-                .Path = wm.Path,
-                .IncludeSubdirectories = wm.IncludeSubdirectories,
-                .Filter = wm.Filter,
-                .NotifyFilter = wm.NotifyFilter,
-                .EnableRaisingEvents = True}
+                    .Path = wm.Path,
+                    .IncludeSubdirectories = wm.IncludeSubdirectories,
+                    .Filter = wm.Filter,
+                    .NotifyFilter = wm.NotifyFilter,
+                    .EnableRaisingEvents = True}
 
             ' Add handlers so that changes get reflected. 
             If wm.Watch And WatcherChangeTypes.Created Then
-                AddHandler watcher.Created, Sub(sender As Object, e As FileSystemEventArgs) RaiseEvent Created(sender, e)
+                AddHandler watcher.Created,
+                    Sub(sender As Object, e As FileSystemEventArgs) RaiseEvent Created(sender, e)
             End If
             If wm.Watch And WatcherChangeTypes.Changed Then
-                AddHandler watcher.Changed, Sub(sender As Object, e As FileSystemEventArgs) RaiseEvent Changed(sender, e)
+                AddHandler watcher.Changed,
+                    Sub(sender As Object, e As FileSystemEventArgs) RaiseEvent Changed(sender, e)
             End If
             If wm.Watch And WatcherChangeTypes.Deleted Then
-                AddHandler watcher.Deleted, Sub(sender As Object, e As FileSystemEventArgs) RaiseEvent Deleted(sender, e)
+                AddHandler watcher.Deleted,
+                    Sub(sender As Object, e As FileSystemEventArgs) RaiseEvent Deleted(sender, e)
             End If
             If wm.Watch And WatcherChangeTypes.Renamed Then
                 AddHandler watcher.Renamed, Sub(sender As Object, e As RenamedEventArgs) RaiseEvent Renamed(sender, e)
             End If
 
             ' Store the fs watcher so it doesn't get disposed. 
-            watchers.Add(watcher)
+            _watchers.Add(watcher)
         Next
 
         ' Throw exception instead of MessageBox.  

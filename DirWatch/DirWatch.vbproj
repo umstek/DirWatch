@@ -149,8 +149,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="ModernXP %2850%29.ico" />
-    <Content Include="Panel ┬╗ Find.ico" />
     <Content Include="Search.ico" />
   </ItemGroup>
   <ItemGroup>

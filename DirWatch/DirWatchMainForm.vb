@@ -1,8 +1,6 @@
 ﻿Imports System.IO
-Imports DirWatch.Helpers
 
 Public Class DirWatchMainForm
-
     Private Property Session As New WatchSession
 
     Private Sub DirWatchMainForm_Shown(sender As Object, e As EventArgs) Handles Me.Shown
@@ -15,50 +13,52 @@ Public Class DirWatchMainForm
         AddHandler Session.Changed, AddressOf session_Changed
         AddHandler Session.Deleted, AddressOf session_Deleted
         AddHandler Session.Renamed, AddressOf session_Renamed
-
     End Sub
 
     ' Created/Changed/Renamed all have same signature so we can use the same delegate. 
     Delegate Sub SessionFileSystemEventArgsCallback(sender As Object, e As FileSystemEventArgs)
+
     Delegate Sub SessionRenamedEventArgsCallback(sender As Object, e As RenamedEventArgs)
 
     Private Sub session_Created(sender As Object, e As FileSystemEventArgs)
         ' Avoid illegal cross-thread call to UI component list view by using a delegate function.
         If listViewResults.InvokeRequired Then
             Dim d As New SessionFileSystemEventArgsCallback(AddressOf session_Created)
-            Me.Invoke(d, New Object() {sender, e}) ' Call the same function in the thread which created the UI component. 
+            Me.Invoke(d, New Object() {sender, e}) _
+            ' Call the same function in the thread which created the UI component. 
         Else
             listViewResults.Items.Add(New ListViewItem({e.FullPath, e.ChangeType.ToString()}, listViewResults.Groups(0)))
         End If
-
     End Sub
 
     Private Sub session_Changed(sender As Object, e As FileSystemEventArgs)
         ' Avoid illegal cross-thread call to UI component list view by using a delegate function.
         If listViewResults.InvokeRequired Then
             Dim d As New SessionFileSystemEventArgsCallback(AddressOf session_Changed)
-            Me.Invoke(d, New Object() {sender, e}) ' Call the same function in the thread which created the UI component. 
+            Me.Invoke(d, New Object() {sender, e}) _
+            ' Call the same function in the thread which created the UI component. 
         Else
             listViewResults.Items.Add(New ListViewItem({e.FullPath, e.ChangeType.ToString()}, listViewResults.Groups(2)))
         End If
-
     End Sub
+
     Private Sub session_Deleted(sender As Object, e As FileSystemEventArgs)
         ' Avoid illegal cross-thread call to UI component list view by using a delegate function.
         If listViewResults.InvokeRequired Then
             Dim d As New SessionFileSystemEventArgsCallback(AddressOf session_Deleted)
-            Me.Invoke(d, New Object() {sender, e}) ' Call the same function in the thread which created the UI component. 
+            Me.Invoke(d, New Object() {sender, e}) _
+            ' Call the same function in the thread which created the UI component. 
         Else
             listViewResults.Items.Add(New ListViewItem({e.FullPath, e.ChangeType.ToString()}, listViewResults.Groups(1)))
         End If
-
     End Sub
 
     Private Sub session_Renamed(sender As Object, e As RenamedEventArgs)
         ' Avoid illegal cross-thread call to UI component list view by using a delegate function.
         If listViewResults.InvokeRequired Then
             Dim d As New SessionRenamedEventArgsCallback(AddressOf session_Renamed)
-            Me.Invoke(d, New Object() {sender, e}) ' Call the same function in the thread which created the UI component. 
+            Me.Invoke(d, New Object() {sender, e}) _
+            ' Call the same function in the thread which created the UI component. 
         Else
             listViewResults.Items.Add(New ListViewItem({e.FullPath, e.ChangeType.ToString()}, listViewResults.Groups(3)))
         End If
@@ -66,13 +66,13 @@ Public Class DirWatchMainForm
 
     Private Sub buttonAdd_Click(sender As Object, e As EventArgs) Handles buttonAdd.Click
         Dim notifyFilter = Aggregate ' Enum is multi-selectable. Get an all-packed value. 
-                               item In checkListNotifyFilters.CheckedItems
-                               Select CInt([Enum].Parse(GetType(NotifyFilters), item))
-                                   Into [Or]()
+                item In checkListNotifyFilters.CheckedItems
+                Select CInt([Enum].Parse(GetType(NotifyFilters), item))
+                Into [Or]()
         Dim watchFilter = Aggregate ' Enum is multi-selectable. Get an all-packed value. 
-                              item In checkListWatch.CheckedItems
-                              Select CInt([Enum].Parse(GetType(WatcherChangeTypes), item))
-                                  Into [Or]()
+                item In checkListWatch.CheckedItems
+                Select CInt([Enum].Parse(GetType(WatcherChangeTypes), item))
+                Into [Or]()
 
         ' Add target details to watch session. Check for null. 
         Session?.AddTarget(textPath.Text, checkSubdirs.Checked, textFilter.Text, notifyFilter, watchFilter)
@@ -87,9 +87,9 @@ Public Class DirWatchMainForm
         Try
             Session.Start()
         Catch ex As Exception
-            MessageBox.Show(Me, ex.Message, "Operation successful with errors", MessageBoxButtons.OK, MessageBoxIcon.Exclamation)
+            MessageBox.Show(Me, ex.Message, "Operation successful with errors", MessageBoxButtons.OK,
+                            MessageBoxIcon.Exclamation)
         End Try
-
     End Sub
 
     Private Sub buttonBrowse_Click(sender As Object, e As EventArgs) Handles buttonBrowse.Click
